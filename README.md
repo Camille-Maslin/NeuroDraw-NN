@@ -58,6 +58,7 @@ python main.py
 
 ## Project Structure
 
+```bash
 NeuroDraw-NN/
 ├── main.py # Application entry point
 ├── src/
@@ -70,6 +71,7 @@ NeuroDraw-NN/
 ├── docs/ # Documentation and explanations
 ├── requirements.txt # Minimal project dependencies
 └── README.md # Project documentation
+```
 
 ## Understanding the Code
 
