@@ -1,3 +1,8 @@
+"""
+Drawing panel component for the application.
+Handles user drawing input and visualization.
+"""
+
 from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout, QLabel, QFrame, QHBoxLayout
 from PyQt5.QtGui import QPainter, QPen, QColor, QImage, QPixmap, QPainterPath
 from PyQt5.QtCore import Qt, QPoint, QRect
@@ -10,9 +15,9 @@ class DrawingPanel(QWidget):
     def __init__(self):
         super().__init__()
         layout = QVBoxLayout(self)
-        layout.setAlignment(Qt.AlignCenter)  # Centrer tout le contenu
+        layout.setAlignment(Qt.AlignCenter)  # Center all content
         
-        # Canvas container avec bordure et ombre
+        # Canvas container with border and shadow
         canvas_container = QFrame()
         canvas_container.setStyleSheet("""
             QFrame {
@@ -63,12 +68,12 @@ class DrawingPanel(QWidget):
             }
         """)
         
-        # Titre
+        # Title
         title = QLabel("Drawing Area (30x30)")
         title.setStyleSheet("font-weight: bold; font-size: 14px;")
         layout.addWidget(title)
         
-        # Contrôles
+        # Controls
         controls_layout = QVBoxLayout(controls_container)
         
         controls_title = QLabel("Controls")
@@ -100,19 +105,19 @@ class DrawingPanel(QWidget):
         controls_layout.addLayout(buttons_layout)
         layout.addWidget(controls_container)
         
-        # Connexions
+        # Connections
         self.clear_btn.clicked.connect(self.canvas.clear)
         self.undo_btn.clicked.connect(self.canvas.undo)
         self.redo_btn.clicked.connect(self.canvas.redo)
         
-        # État initial des boutons
+        # Initial button states
         self.update_button_states()
         
-        # Connecter les signaux pour mettre à jour l'état des boutons
+        # Connect signals to update button states
         self.canvas.image_updated.connect(self.update_button_states)
     
     def update_button_states(self):
-        """Met à jour l'état activé/désactivé des boutons undo/redo"""
+        """Updates the enabled/disabled state of undo/redo buttons"""
         self.undo_btn.setEnabled(self.canvas.history.can_undo())
         self.redo_btn.setEnabled(self.canvas.history.can_redo())
 
@@ -125,8 +130,8 @@ class Canvas(QWidget):
         self.last_point = None
         self.drawing = False
         self.points = []
-        self.strokes = []  # Liste des traits (chaque trait est une liste de points)
-        self.current_stroke = []  # Points du trait en cours
+        self.strokes = []  # List of strokes (each stroke is a list of points)
+        self.current_stroke = []  # Points of the current stroke
         self.grid_size = 28
         self.cell_size = self.width() / self.grid_size
         self.history = DrawingHistory()
@@ -141,7 +146,7 @@ class Canvas(QWidget):
         if event.button() == Qt.LeftButton:
             self.drawing = True
             self.last_point = event.pos()
-            self.current_stroke = [self.last_point]  # Commencer un nouveau trait
+            self.current_stroke = [self.last_point]  # Start a new stroke
             self.update()
     
     def mouseMoveEvent(self, event):
@@ -170,7 +175,7 @@ class Canvas(QWidget):
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.drawing = False
-            if self.current_stroke:  # Ajouter le trait actuel à la liste des traits
+            if self.current_stroke:  # Add current stroke to the list of strokes
                 self.strokes.append(self.current_stroke)
                 self.current_stroke = []
                 self.history.add_state(self.strokes)
@@ -178,7 +183,7 @@ class Canvas(QWidget):
                 self.image_updated.emit(normalized)
     
     def clear(self):
-        """Efface le dessin"""
+        """Clears the drawing"""
         self.strokes = []
         self.current_stroke = []
         self.history = DrawingHistory()
@@ -206,12 +211,12 @@ class Canvas(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
         
-        # Dessiner la grille
+        # Draw grid
         pen = QPen(QColor(40, 40, 40))
         pen.setWidth(1)
         painter.setPen(pen)
         
-        # Grille plus visible
+        # More visible grid
         for i in range(self.grid_size):
             x = i * self.cell_size
             y = i * self.cell_size
@@ -228,12 +233,12 @@ class Canvas(QWidget):
                 pen.setColor(QColor(40, 40, 40))
                 painter.setPen(pen)
         
-        # Dessiner le cadre
+        # Draw frame
         pen = QPen(Qt.white, 2)
         painter.setPen(pen)
         painter.drawRect(0, 0, self.width()-1, self.height()-1)
         
-        # Dessiner tous les traits terminés
+        # Draw all completed strokes
         for stroke in self.strokes:
             if stroke:
                 pen = QPen()
@@ -249,13 +254,13 @@ class Canvas(QWidget):
                     path.lineTo(point)
                 painter.drawPath(path)
                 
-                # Effet de brillance
+                # Brilliance effect
                 pen.setWidth(10)
                 pen.setColor(QColor(220, 220, 255))
                 painter.setPen(pen)
                 painter.drawPath(path)
         
-        # Dessiner le trait en cours
+        # Draw current stroke
         if self.current_stroke:
             pen = QPen()
             pen.setWidth(DRAWING_CONFIG["default_brush_size"])
@@ -270,15 +275,15 @@ class Canvas(QWidget):
                 path.lineTo(point)
             painter.drawPath(path)
             
-            # Effet de brillance
+            # Brilliance effect
             pen.setWidth(10)
             pen.setColor(QColor(220, 220, 255))
             painter.setPen(pen)
             painter.drawPath(path)
     
     def get_normalized_image(self):
-        """Convertit le dessin en image normalisée"""
-        # Si aucun trait n'a été dessiné, retourner une image vide
+        """Converts the drawing to a normalized image"""
+        # If no strokes have been drawn, return an empty image
         if not self.strokes and not self.current_stroke:
             return np.zeros((28, 28), dtype=np.float32)
         
@@ -288,10 +293,10 @@ class Canvas(QWidget):
         painter = QPainter(image)
         painter.setRenderHint(QPainter.Antialiasing, False)
         
-        # Mettre à l'échelle les points pour 28x28
+        # Scale points to 28x28
         scale = 28 / self.width()
         
-        # Dessiner avec un trait plus épais pour mieux correspondre au dataset MNIST
+        # Draw with a thicker pen to better match the MNIST dataset
         pen = QPen()
         pen.setWidth(3)
         pen.setColor(QColor('white'))
@@ -299,7 +304,7 @@ class Canvas(QWidget):
         pen.setJoinStyle(Qt.RoundJoin)
         painter.setPen(pen)
         
-        # Dessiner tous les traits terminés
+        # Draw all completed strokes
         for stroke in self.strokes:
             if stroke:
                 scaled_points = []
@@ -314,7 +319,7 @@ class Canvas(QWidget):
                     path.lineTo(point)
                 painter.drawPath(path)
         
-        # Dessiner le trait en cours
+        # Draw current stroke
         if self.current_stroke:
             scaled_points = []
             for point in self.current_stroke:
@@ -330,21 +335,21 @@ class Canvas(QWidget):
         
         painter.end()
         
-        # Convertir en numpy array
+        # Convert to numpy array
         ptr = image.bits()
         ptr.setsize(image.byteCount())
         arr = np.array(ptr).reshape(28, 28)
         
-        # Normaliser et ajouter un léger flou pour adoucir les bords
+        # Normalize and add slight blur for softening edges
         from scipy.ndimage import gaussian_filter
         normalized = arr.astype(np.float32) / 255.0
         normalized = gaussian_filter(normalized, sigma=0.5)
         
-        # Appliquer un seuil plus élevé pour éliminer le bruit
+        # Apply higher threshold to eliminate noise
         threshold = 0.15
         normalized[normalized < threshold] = 0.0
         
-        # Vérification supplémentaire : si l'image est presque vide, la considérer comme vide
+        # Additional check: if the image is almost empty, consider it empty
         if np.sum(normalized) < 1.0:
             return np.zeros((28, 28), dtype=np.float32)
         

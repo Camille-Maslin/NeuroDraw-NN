@@ -36,19 +36,19 @@ class SimpleNeuralNetwork:
         if len(x.shape) > 1:
             x = x.flatten()
         
-        # Vérifier si l'entrée est vide (tous les pixels sont noirs)
-        if np.all(x < 0.1):  # Augmenter le seuil ici aussi
-            return np.zeros(self.output_size)  # Retourner des probabilités nulles
+        # Check if input is empty (all pixels are black)
+        if np.all(x < 0.1):  # Increased threshold here too
+            return np.zeros(self.output_size)  # Return zero probabilities
         
-        # Première couche
+        # First layer
         hidden = np.dot(x, self.weights1) + self.bias1
         self.hidden_activations = self.sigmoid(hidden)
         
-        # Couche de sortie
+        # Output layer
         output = np.dot(self.hidden_activations, self.weights2) + self.bias2
         self.output_activations = self.sigmoid(output)
         
-        # S'assurer que le résultat est un array 1D de taille output_size
+        # Ensure the result is a 1D array of size output_size
         return np.array(self.output_activations).flatten()
     
     def train(self, x, y):
@@ -56,7 +56,7 @@ class SimpleNeuralNetwork:
         if len(x.shape) > 1:
             x = x.flatten()
         
-        # Convertir y en one-hot encoding
+        # Convert y to one-hot encoding
         y_true = np.zeros((1, self.output_size))
         y_true[0, y] = 1
         
@@ -67,15 +67,15 @@ class SimpleNeuralNetwork:
         output_activations = self.sigmoid(output)
         
         # Backward pass
-        # Erreur de sortie
+        # Output error
         output_error = y_true - output_activations
         output_delta = output_error * self.sigmoid_derivative(output_activations)
         
-        # Erreur cachée
+        # Hidden error
         hidden_error = np.dot(output_delta, self.weights2.T)
         hidden_delta = hidden_error * self.sigmoid_derivative(hidden_output)
         
-        # Mise à jour des poids
+        # Update weights
         self.weights2 += self.learning_rate * np.dot(hidden_output.T, output_delta)
         self.bias2 += self.learning_rate * output_delta
         

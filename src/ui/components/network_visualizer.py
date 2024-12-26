@@ -7,17 +7,17 @@ from src.utils.config import VISUALIZATION_CONFIG
 class NetworkVisualizer(QWidget):
     def __init__(self, network):
         super().__init__()
-        self.setMinimumSize(900, 500)  # Augmenter la taille minimale
+        self.setMinimumSize(900, 500)  # Increase minimum size
         
-        # Calcul des dimensions et espacements
-        self.margin_h = 80   # Augmenter les marges horizontales
-        self.margin_v = 40   # Augmenter les marges verticales
-        self.layer_spacing = 300  # Plus d'espace entre les couches
-        self.neuron_spacing = 20  # Plus d'espace entre les neurones
-        self.neuron_radius = 8    # Neurones légèrement plus grands
-        self.output_width = 120   # Barres de sortie plus larges
+        # Calculate dimensions and spacing
+        self.margin_h = 80   # Increase horizontal margins
+        self.margin_v = 40   # Increase vertical margins
+        self.layer_spacing = 300  # More space between layers
+        self.neuron_spacing = 20  # More space between neurons
+        self.neuron_radius = 8    # Slightly larger neurons
+        self.output_width = 120   # Wider output bars
         
-        # Positions des couches (calculées dynamiquement dans paintEvent)
+        # Layer positions (dynamically calculated in paintEvent)
         self.input_x = None
         self.hidden_x = None
         self.output_x = None
@@ -26,12 +26,12 @@ class NetworkVisualizer(QWidget):
         self.predictions = np.zeros(10)
         self.current_input = np.zeros(784)
         
-        # Couleurs
+        # Colors
         self.bg_color = QColor(240, 240, 245)
         self.inactive_color = QColor(200, 200, 220)
         self.active_color = QColor(65, 105, 225)
         
-        # Style des barres de probabilité
+        # Probability bar style
         self.probability_style = """
             QProgressBar {
                 border: 2px solid #bdc3c7;
@@ -49,37 +49,37 @@ class NetworkVisualizer(QWidget):
             }
         """
         
-        # Historique des prédictions pour l'animation
+        # Prediction history for animation
         self.prediction_history = {i: [] for i in range(10)}
-        self.max_history_size = VISUALIZATION_CONFIG.get("max_history_size", 1000)  # Limite par défaut
+        self.max_history_size = VISUALIZATION_CONFIG.get("max_history_size", 1000)  # Default limit
         
-        # Couleurs pour les différents niveaux de confiance
+        # Colors for different confidence levels
         self.confidence_colors = {
-            'high': QColor("#2ecc71"),    # Vert pour >70%
-            'medium': QColor("#3498db"),   # Bleu pour >40%
-            'low': QColor("#95a5a6")      # Gris pour le reste
+            'high': QColor("#2ecc71"),    # Green for >70%
+            'medium': QColor("#3498db"),   # Blue for >40%
+            'low': QColor("#95a5a6")      # Gray for the rest
         }
     
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
         
-        # Fond clair
+        # Light background
         painter.fillRect(self.rect(), self.bg_color)
         
-        # Calcul des positions en fonction de la taille actuelle
+        # Calculate positions based on current size
         w = self.width()
         h = self.height()
         
-        # Positions horizontales des couches
-        self.input_x = self.margin_h + 100  # Plus d'espace pour l'entrée
+        # Horizontal layer positions
+        self.input_x = self.margin_h + 100  # More space for input
         self.hidden_x = w // 2
         self.output_x = w - self.margin_h - self.output_width - 50
         
-        # Hauteur disponible pour les neurones
+        # Available height for neurons
         available_height = h - 2 * self.margin_v
         
-        # Titres des couches
+        # Layer titles
         painter.setPen(Qt.black)
         font = painter.font()
         font.setPointSize(12)
@@ -89,16 +89,16 @@ class NetworkVisualizer(QWidget):
         painter.drawText(int(self.hidden_x - 50), 30, "Hidden Layer")
         painter.drawText(int(self.output_x - 50), 30, "Output")
         
-        # Dessiner l'entrée comme une grille 28x28 centrée
-        grid_size = 140  # Taille totale de la grille
-        cell_size = grid_size / 28  # Taille de chaque cellule
+        # Draw input as a centered 28x28 grid
+        grid_size = 140  # Total grid size
+        cell_size = grid_size / 28  # Size of each cell
         
-        # Calcul pour centrer verticalement
-        total_height = h * 0.6  # Hauteur disponible pour les neurones
-        start_y = (h - grid_size) / 2  # Centrer verticalement
-        start_x = self.input_x - grid_size/2  # Centrer horizontalement
+        # Calculate for vertical centering
+        total_height = h * 0.6  # Available height for neurons
+        start_y = (h - grid_size) / 2  # Center vertically
+        start_x = self.input_x - grid_size/2  # Center horizontally
         
-        # Cadre de la grille avec ombre
+        # Grid frame with shadow
         shadow_offset = 3
         shadow_color = QColor(0, 0, 0, 30)
         painter.setPen(Qt.NoPen)
@@ -110,19 +110,19 @@ class NetworkVisualizer(QWidget):
             grid_size
         )
         
-        # Fond blanc pour la grille
+        # White background for grid
         painter.setBrush(QColor("white"))
-        painter.setPen(QPen(QColor("#3498db"), 2))  # Bordure bleue
+        painter.setPen(QPen(QColor("#3498db"), 2))  # Blue border
         painter.drawRect(int(start_x), int(start_y), grid_size, grid_size)
         
-        # Cellules de la grille
+        # Grid cells
         for i in range(28):
             for j in range(28):
                 idx = i * 28 + j
                 x = start_x + j * cell_size
                 y = start_y + i * cell_size
                 
-                # Dessiner la grille de fond
+                # Draw background grid
                 if (i + j) % 2 == 0:
                     painter.fillRect(
                         int(x), int(y),
@@ -130,17 +130,17 @@ class NetworkVisualizer(QWidget):
                         QColor(248, 249, 250)
                     )
                 
-                # Dessiner le pixel actif
+                # Draw active pixel
                 activation = self.current_input[idx]
                 if activation > 0:
-                    color = QColor(52, 152, 219, int(activation * 255))  # Bleu avec transparence
+                    color = QColor(52, 152, 219, int(activation * 255))  # Blue with transparency
                     painter.fillRect(
                         int(x), int(y),
                         int(cell_size), int(cell_size),
                         color
                     )
         
-        # Lignes de la grille plus fines
+        # Thinner grid lines
         painter.setPen(QPen(QColor(222, 226, 230), 0.5))
         for i in range(29):
             x = start_x + i * cell_size
@@ -148,7 +148,7 @@ class NetworkVisualizer(QWidget):
             painter.drawLine(int(x), int(start_y), int(x), int(start_y + grid_size))
             painter.drawLine(int(start_x), int(y), int(start_x + grid_size), int(y))
         
-        # Lignes principales de la grille (tous les 7 pixels)
+        # Main grid lines (every 7 pixels)
         painter.setPen(QPen(QColor(206, 212, 218), 1))
         for i in range(0, 29, 7):
             x = start_x + i * cell_size
@@ -156,14 +156,14 @@ class NetworkVisualizer(QWidget):
             painter.drawLine(int(x), int(start_y), int(x), int(start_y + grid_size))
             painter.drawLine(int(start_x), int(y), int(start_x + grid_size), int(y))
         
-        # Connexions importantes
+        # Important connections
         if self.network.hidden_activations is not None:
-            # Trouver les pixels actifs les plus importants
+            # Find most important active pixels
             active_inputs = np.where(self.current_input > 0.5)[0]
             hidden_activations = self.network.hidden_activations[0]
-            top_hidden = np.argsort(hidden_activations)[-5:]  # Top 5 neurones cachés
+            top_hidden = np.argsort(hidden_activations)[-5:]  # Top 5 hidden neurons
             
-            # Connexions entrée -> couche cachée
+            # Input -> hidden layer connections
             for idx in active_inputs:
                 i, j = idx // 28, idx % 28
                 in_x = start_x + j * cell_size + cell_size/2
@@ -180,11 +180,11 @@ class NetworkVisualizer(QWidget):
                     painter.setPen(pen)
                     painter.drawLine(int(in_x), int(in_y), int(self.hidden_x), int(hid_y))
             
-            # Connexions couche cachée -> sortie
+            # Hidden layer -> output connections
             for h_idx in top_hidden:
                 hid_y = h * 0.2 + (h * 0.6 * h_idx / (self.network.hidden_size-1))
                 for o_idx in range(self.network.output_size):
-                    if self.predictions[o_idx] > 0.1:  # Montrer seulement les sorties significatives
+                    if self.predictions[o_idx] > 0.1:  # Show only significant outputs
                         out_y = h * 0.2 + (h * 0.6 * o_idx / (self.network.output_size-1))
                         weight = float(self.network.weights2[h_idx, o_idx])
                         if weight > 0:
@@ -195,7 +195,7 @@ class NetworkVisualizer(QWidget):
                         painter.setPen(pen)
                         painter.drawLine(int(self.hidden_x), int(hid_y), int(self.output_x), int(out_y))
         
-        # Neurones cachés
+        # Hidden neurons
         if self.network.hidden_activations is not None:
             for i in range(self.network.hidden_size):
                 y = h * 0.2 + (h * 0.6 * i / (self.network.hidden_size-1))
@@ -205,123 +205,87 @@ class NetworkVisualizer(QWidget):
                 painter.setPen(Qt.black)
                 painter.drawEllipse(QPointF(self.hidden_x, y), self.neuron_radius/2, self.neuron_radius/2)
         
-        # Neurones de sortie avec visualisation améliorée
+        # Output neurons with enhanced visualization
         for i in range(self.network.output_size):
             y = h * 0.2 + (h * 0.6 * i / (self.network.output_size-1))
             activation = float(self.predictions[i])
             
-            # Rectangle principal
+            # Main rectangle
             rect_x = self.output_x + 30
             rect_y = y - 12
             rect_width = 100
             rect_height = 24
             
-            # Créer le rectangle principal
+            # Create main rectangle
             main_rect = QRectF(rect_x, rect_y, rect_width, rect_height)
             
-            # Fond avec un léger dégradé
+            # Background with slight gradient
             background_gradient = QLinearGradient(main_rect.topLeft(), main_rect.bottomLeft())
             background_gradient.setColorAt(0, QColor("#f8f9fa"))
             background_gradient.setColorAt(1, QColor("#e9ecef"))
             painter.setBrush(background_gradient)
             painter.setPen(QPen(QColor("#dee2e6"), 1))
-            painter.drawRoundedRect(main_rect, 4, 4)  # Coins arrondis
+            painter.drawRoundedRect(main_rect, 4, 4)  # Rounded corners
             
-            # Barre de progression avec dégradé
+            # Progress bar with gradient
             if activation > 0:
                 progress_width = int(rect_width * activation)
                 progress_rect = QRectF(rect_x, rect_y, progress_width, rect_height)
                 
-                # Créer un dégradé basé sur le niveau d'activation
+                # Create gradient based on activation level
                 gradient = QLinearGradient(progress_rect.topLeft(), progress_rect.bottomLeft())
                 
                 if activation > 0.8:
-                    # Vert pour très haute confiance
+                    # Green for very high confidence
                     gradient.setColorAt(0, QColor("#00b894"))
                     gradient.setColorAt(1, QColor("#00cec9"))
                 elif activation > 0.5:
-                    # Bleu pour confiance moyenne-haute
+                    # Blue for medium-high confidence
                     gradient.setColorAt(0, QColor("#0984e3"))
                     gradient.setColorAt(1, QColor("#74b9ff"))
                 elif activation > 0.3:
-                    # Orange pour confiance moyenne-basse
+                    # Orange for medium-low confidence
                     gradient.setColorAt(0, QColor("#fdcb6e"))
                     gradient.setColorAt(1, QColor("#ffeaa7"))
                 else:
-                    # Rouge pour faible confiance
-                    gradient.setColorAt(0, QColor("#d63031"))
-                    gradient.setColorAt(1, QColor("#ff7675"))
+                    # Gray for low confidence
+                    gradient.setColorAt(0, QColor("#b2bec3"))
+                    gradient.setColorAt(1, QColor("#dfe6e9"))
                 
-                # Dessiner la barre de progression avec coins arrondis
-                path = QPainterPath()
-                path.addRoundedRect(progress_rect, 4, 4)
-                painter.setBrush(QBrush(gradient))
+                painter.setBrush(gradient)
                 painter.setPen(Qt.NoPen)
-                painter.drawPath(path)
-                
-                # Effet de brillance
-                if activation > 0.3:  # Seulement pour les valeurs significatives
-                    highlight_path = QPainterPath()
-                    highlight_rect = QRectF(rect_x, rect_y, progress_width, rect_height/2)
-                    highlight_path.addRoundedRect(highlight_rect, 4, 4)
-                    highlight_gradient = QLinearGradient(highlight_rect.topLeft(), highlight_rect.bottomLeft())
-                    highlight_gradient.setColorAt(0, QColor(255, 255, 255, 50))
-                    highlight_gradient.setColorAt(1, QColor(255, 255, 255, 0))
-                    painter.setBrush(highlight_gradient)
-                    painter.drawPath(highlight_path)
+                painter.drawRoundedRect(progress_rect, 4, 4)
             
-            # Numéro du chiffre avec cercle
-            circle_x = self.output_x - 25
-            circle_y = y
-            circle_radius = 12
-            
-            # Cercle de fond
-            painter.setBrush(QColor("#f8f9fa"))
-            painter.setPen(QPen(QColor("#dee2e6"), 1))
-            painter.drawEllipse(QPointF(circle_x, circle_y), circle_radius, circle_radius)
-            
-            # Numéro
+            # Draw digit and percentage
+            painter.setPen(Qt.black)
             font = painter.font()
-            font.setBold(True)
             font.setPointSize(10)
             painter.setFont(font)
-            painter.setPen(QColor("#2d3436"))
+            
+            # Digit on the left
+            digit_text = str(i)
             painter.drawText(
-                QRectF(circle_x - circle_radius, circle_y - circle_radius, 
-                       circle_radius * 2, circle_radius * 2),
-                Qt.AlignCenter,
-                str(i)
+                int(rect_x - 25),
+                int(rect_y + rect_height/2 + 5),
+                digit_text
             )
             
-            # Pourcentage
-            text_color = Qt.white if activation > 0.3 else QColor("#2d3436")
-            painter.setPen(text_color)
-            font.setPointSize(9)
-            painter.setFont(font)
-            
-            # Calcul de la position du texte
-            text_rect = QRectF(rect_x, rect_y, progress_width if activation > 0.3 else rect_width, rect_height)
+            # Percentage on the right
+            percentage = f"{int(activation * 100)}%"
             painter.drawText(
-                text_rect,
-                Qt.AlignCenter,
-                f"{int(activation * 100)}%"
+                int(rect_x + rect_width + 5),
+                int(rect_y + rect_height/2 + 5),
+                percentage
             )
     
     def update_predictions(self, input_image, predictions):
-        """Update network predictions and input visualization"""
-        self.current_input = input_image.flatten()
-        # S'assurer que predictions est un array 1D de taille 10
-        self.predictions = np.array(predictions).flatten()
+        """Update the network visualization with new predictions"""
+        self.current_input = input_image
+        self.predictions = predictions
         
-        # Vérifier la taille des prédictions
-        if len(self.predictions) != 10:
-            print(f"Warning: Unexpected predictions shape: {self.predictions.shape}")
-            self.predictions = np.zeros(10)
-            return
-        
-        # Mettre à jour l'historique avec limite
-        for i in range(10):
-            self.prediction_history[i].append(float(self.predictions[i]))
+        # Update prediction history
+        for i, pred in enumerate(predictions):
+            self.prediction_history[i].append(float(pred))
             if len(self.prediction_history[i]) > self.max_history_size:
                 self.prediction_history[i].pop(0)
         

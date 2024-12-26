@@ -10,27 +10,27 @@ class DatasetPanel(QWidget):
         self.setMinimumSize(400, 400)
         self.layout = QVBoxLayout(self)
         
-        # Titre
+        # Title
         title = QLabel("Dataset Visualization")
         title.setAlignment(Qt.AlignCenter)
         title.setStyleSheet("font-size: 14px; font-weight: bold; margin: 10px;")
         self.layout.addWidget(title)
         
-        # Grille pour afficher les exemples
+        # Grid to display examples
         grid_layout = QGridLayout()
         self.layout.addLayout(grid_layout)
         
-        # Charger le dataset
+        # Load dataset
         data_folder = os.path.join(os.path.dirname(__file__), 'data')
         self.dataset_loader = DatasetLoader(data_folder)
         
-        # Créer 10 labels pour les chiffres avec un style amélioré
+        # Create 10 labels for digits with enhanced style
         self.digit_labels = []
         for i in range(10):
             container = QWidget()
             container_layout = QVBoxLayout(container)
             
-            # Label pour l'image
+            # Label for image
             label = QLabel()
             label.setFixedSize(100, 100)
             label.setStyleSheet("""
@@ -43,7 +43,7 @@ class DatasetPanel(QWidget):
             label.setAlignment(Qt.AlignCenter)
             container_layout.addWidget(label)
             
-            # Label pour le numéro
+            # Label for number
             num_label = QLabel(str(i))
             num_label.setAlignment(Qt.AlignCenter)
             num_label.setStyleSheet("font-size: 12px; font-weight: bold;")
@@ -54,12 +54,12 @@ class DatasetPanel(QWidget):
             grid_layout.addWidget(container, row, col)
             self.digit_labels.append(label)
             
-            # Charger et afficher l'image
+            # Load and display image
             pixmap = self.dataset_loader.get_digit_image(i)
             if pixmap:
                 label.setPixmap(pixmap)
             
-            # Ajouter le numéro du chiffre
+            # Add digit number
             num_label = QLabel(str(i))
             num_label.setAlignment(Qt.AlignCenter)
             grid_layout.addWidget(num_label, row+2, col) 

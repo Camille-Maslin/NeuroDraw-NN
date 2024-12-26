@@ -4,15 +4,15 @@ Drawing history management for undo/redo functionality.
 
 class DrawingHistory:
     def __init__(self):
-        self.history = []  # Liste des états (chaque état est une liste de traits)
+        self.history = []  # List of states (each state is a list of strokes)
         self.current_index = -1
     
     def add_state(self, strokes):
-        """Ajoute un nouvel état à l'historique"""
-        # Supprimer tous les états après l'index actuel
+        """Adds a new state to the history"""
+        # Remove all states after current index
         self.history = self.history[:self.current_index + 1]
         
-        # Créer une copie profonde des traits
+        # Create a deep copy of strokes
         new_state = []
         for stroke in strokes:
             new_state.append(stroke.copy())
@@ -21,7 +21,7 @@ class DrawingHistory:
         self.current_index += 1
     
     def undo(self):
-        """Retourne à l'état précédent"""
+        """Returns to the previous state"""
         if self.can_undo():
             self.current_index -= 1
             if self.current_index >= 0:
@@ -30,16 +30,16 @@ class DrawingHistory:
         return None
     
     def redo(self):
-        """Rétablit l'état suivant"""
+        """Restores the next state"""
         if self.can_redo():
             self.current_index += 1
             return self.history[self.current_index]
         return None
     
     def can_undo(self):
-        """Vérifie s'il est possible d'annuler"""
+        """Checks if undo is possible"""
         return self.current_index >= 0
     
     def can_redo(self):
-        """Vérifie s'il est possible de rétablir"""
+        """Checks if redo is possible"""
         return self.current_index < len(self.history) - 1 
