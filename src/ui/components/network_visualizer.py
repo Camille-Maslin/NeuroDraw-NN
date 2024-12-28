@@ -1,3 +1,8 @@
+"""
+Network visualization component.
+Displays the neural network structure and activations.
+"""
+
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtGui import QPainter, QPen, QColor, QBrush, QFont, QLinearGradient, QPainterPath
 from PyQt5.QtCore import Qt, QPointF, QRectF
@@ -131,7 +136,7 @@ class NetworkVisualizer(QWidget):
                     )
                 
                 # Draw active pixel
-                activation = self.current_input[idx]
+                activation = float(self.current_input[idx])
                 if activation > 0:
                     color = QColor(52, 152, 219, int(activation * 255))  # Blue with transparency
                     painter.fillRect(
@@ -184,7 +189,7 @@ class NetworkVisualizer(QWidget):
             for h_idx in top_hidden:
                 hid_y = h * 0.2 + (h * 0.6 * h_idx / (self.network.hidden_size-1))
                 for o_idx in range(self.network.output_size):
-                    if self.predictions[o_idx] > 0.1:  # Show only significant outputs
+                    if float(self.predictions[o_idx]) > 0.1:  # Show only significant outputs
                         out_y = h * 0.2 + (h * 0.6 * o_idx / (self.network.output_size-1))
                         weight = float(self.network.weights2[h_idx, o_idx])
                         if weight > 0:
@@ -280,8 +285,8 @@ class NetworkVisualizer(QWidget):
     
     def update_predictions(self, input_image, predictions):
         """Update the network visualization with new predictions"""
-        self.current_input = input_image
-        self.predictions = predictions
+        self.current_input = input_image.flatten()
+        self.predictions = predictions.flatten()
         
         # Update prediction history
         for i, pred in enumerate(predictions):
